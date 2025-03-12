@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" xml:lang="en"> 
 <head>
+<meta charset="UTF-8"/>
 <title>Overview</title>
-<meta charset="UTF-8" />
 
 <style>
 .tg  {
@@ -89,10 +89,10 @@
 				<div id="prevalue"></div>
 			</td>	
 		</tr>
-		<tr>
+		<tr id="raw_text" style="display:none;">
 			<th class="th">Raw Value</th>
 		</tr>	
-		<tr>	
+		<tr id="raw_value" style="display:none;">	
 			<td class="tg-2">
 				<div id="raw"></div>
 			</td>	
@@ -136,6 +136,10 @@
 	<script type="text/javascript" src="readconfigparam.js?v=$COMMIT_HASH"></script>
 	
 	<script type="text/javascript">
+		var canvas = domainname = getDomainname(),
+			param,
+			category;
+
 		function addZero(i) {
 			if (i < 10) {
 				i = "0" + i;
@@ -150,7 +154,9 @@
 
 		function LoadData(){
 			loadValue("value", "value", "border-collapse: collapse; width: 100%");
-			loadValue("raw", "raw", "border-collapse: collapse; width: 100%");
+			if (param["Debug"]["LogLevel"].value1 == "4") {
+				loadValue("raw", "raw", "border-collapse: collapse; width: 100%");
+			}
 			loadValue("prevalue", "prevalue", "border-collapse: collapse; width: 100%");
 			loadValue("error", "error", "border-collapse: collapse; width: 100%");
 			loadStatus();
@@ -177,6 +183,17 @@
 				LoadROIImage();
 				Refresh();
 			}, 300000);
+		}
+
+		function Raw_Value_visibility() {
+			if (param["Debug"]["LogLevel"].value1 == "4") {
+				document.getElementById("raw_text").style.display = "";
+				document.getElementById("raw_value").style.display = "";
+			}
+			else {
+				document.getElementById("raw_text").style.display = "none";
+				document.getElementById("raw_value").style.display = "none";
+			}
 		}
 
 		function loadStatus() {
@@ -214,20 +231,22 @@
 				if (this.readyState == 4 && this.status == 200) {
 					var _rsp = xhttp.responseText;
 				
-					if (_rsp >= -55) {
-						$('#rssi').html("WIFI Signal: Excellent (" + _rsp + "dBm)");
-					}
-					else if (_rsp < -55 && _rsp >= -67) {
-						$('#rssi').html("WIFI Signal: Good (" + _rsp + "dBm)");
-					}
-					else if (_rsp < -67 && _rsp >= -78) {
-						$('#rssi').html("WIFI Signal: Fair (" + _rsp + "dBm)");
-					}
-					else if (_rsp < -78 && _rsp >= -85) {
-						$('#rssi').html("WIFI Signal: Weak (" + _rsp + "dBm)");
-					}
-					else {
-						$('#rssi').html("WIFI Signal: Unreliable (" + _rsp + "dBm)");
+					if ((_rsp < 0) && (_rsp >= -127)) {
+					    if (_rsp >= -55) {
+						    $('#rssi').html("WIFI Signal: Excellent (" + _rsp + "dBm)");
+					    }
+					    else if (_rsp < -55 && _rsp >= -67) {
+						    $('#rssi').html("WIFI Signal: Good (" + _rsp + "dBm)");
+					    }
+					    else if (_rsp < -67 && _rsp >= -78) {
+						    $('#rssi').html("WIFI Signal: Fair (" + _rsp + "dBm)");
+					    }
+					    else if (_rsp < -78 && _rsp >= -85) {
+						    $('#rssi').html("WIFI Signal: Weak (" + _rsp + "dBm)");
+					    }
+					    else {
+						    $('#rssi').html("WIFI Signal: Unreliable (" + _rsp + "dBm)");
+					    }
 					}
 				}
 			}
@@ -341,7 +360,12 @@
 		}
 		*/
 		function init(){
-			domainname = getDomainname();
+			loadConfig(domainname);
+			ParseConfig();
+			category = getConfigCategory();
+			param = getConfigParameters();
+
+			Raw_Value_visibility();
 			// setImageMaxWidth(); // CamFrameSize was replaced by zoom - CamFrameSize is no longer needed/used for zoom 
 			Refresh();
 		}
