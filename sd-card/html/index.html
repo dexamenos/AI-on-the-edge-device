@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en" xml:lang="en">
 <head>
+    <meta charset="UTF-8"/>
+    <title>AI on the edge</title>
+
     <link rel="icon" href="favicon.ico?v=$COMMIT_HASH" type="image/x-icon">
     <link rel="apple-touch-icon" href="watermeter.svg?v=$COMMIT_HASH" />
-    <title>AI on the edge</title>
-    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="style.css?v=$COMMIT_HASH" type="text/css" >
     <link href="firework.css?v=$COMMIT_HASH" rel="stylesheet">
@@ -30,7 +31,7 @@
 
             if (streamPopup) {  // Ensure that stream popup is closed because it's blocking web interface
                 streamPopup.close();
-			}
+            }
 
             asyncPageLoad(page);
         }
@@ -52,21 +53,21 @@
         }
         
         function getCookie(cname) {
-			let name = cname + "=";
-			let decodedCookie = decodeURIComponent(document.cookie);
-			let ca = decodedCookie.split(';');
-			for(let i = 0; i <ca.length; i++) {
-				let c = ca[i];
+            let name = cname + "=";
+            let decodedCookie = decodeURIComponent(document.cookie);
+            let ca = decodedCookie.split(';');
+            for(let i = 0; i <ca.length; i++) {
+                let c = ca[i];
 				
-				while (c.charAt(0) == ' ') {
-					c = c.substring(1);
-				}
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
 				
-				if (c.indexOf(name) == 0) {
-					return c.substring(name.length, c.length);
-				}
-			}
-        return "";
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
         }        
     </script>
     <style>
@@ -107,7 +108,6 @@
     </tr>
 </table>
 
-
 <div class="menu" onmouseover="resetMenu()">
   <ul>
     <li><a href="#" onclick="loadPage('overview.html?v=$COMMIT_HASH');">Overview</a></li>
@@ -129,10 +129,9 @@
         <li style="width: 260px"><a href="#" onclick="loadPage('edit_config.html?v=$COMMIT_HASH');">Configuration</a></li>
       </ul>
 
-
     <li><a>Data<i class="arrow down"></i></a>
         <ul class="submenu">
-            <li><a href="#" onclick="loadPage(getDomainname() + '/value?full');">Recognition</a></li>
+            <li id="Recognition" style="display:none;"><a href="#" onclick="loadPage(getDomainname() + '/value?full');">Recognition</a></li>
             <li><a>Livestream <i class="arrow right"></i></a>
                 <ul>
                     <li><a href="#" onclick="start_livestream(false);">Live Stream (Light off)</a></li>
@@ -145,7 +144,6 @@
             <li><a href="#" onclick="loadPage('data_export.html?v=$COMMIT_HASH');">Data Export</a></li>
         </ul>
     </li>
-
 
     <li><a>System <i class="arrow down"></i></a>
         <ul class="submenu">
@@ -168,107 +166,103 @@
 </div>
 
 <iframe title="maincontent" name="maincontent" class="iframe" id="maincontent"></iframe>
-
 <span id="Version" style="font-size: 10px; margin-top: -5px;padding-left: 10px;">Loading version...</span>
 
-<!-- # Disabled footer, since it wastes a lot of space and the images are broken
-<div class="footer">
-    <div class="footer-section">
-       <span>Support & Contact Us</span>
-       <a href="https://github.com/jomjol/AI-on-the-edge-device" target="_blank" title="GitHub">
-          <img src="https://github.com/jomjol/AI-on-the-edge-device/images/github-logo.png" alt="GitHub">
-       </a>
-          <img src="https://github.com/jomjol/AI-on-the-edge-device/images/gmail-logo.png" alt="Email">
-       </a>
-       <a href="https://github.com/jomjol/AI-on-the-edge-device/discussions" target="_blank" title="GitHub">
-          <img src="https://github.com/jomjol/AI-on-the-edge-device/images/discussion-logo" alt="GitHub">
-       </a>
-	
-    </div>
-    <div class="footer-section">
-       <span>Donations</span>
-       <a href="https://www.paypal.com/donate?hosted_button_id=8TRSVYNYKDSWL" target="_blank" title="Donate via PayPal">
-          <img src="https://github.com/jomjol/AI-on-the-edge-device/images/paypal.png" alt="PayPal" style="width: 60px; height: auto;">
-       </a>
-    </div>
- </div> -->
-
 <script type="text/javascript">
-    LoadHostname();
-    LoadFwVersion();
-    LoadWebUiVersion();
-    HA_send_discovery_visibility();
+    var canvas = domainname = getDomainname(),
+        param,
+        category;
 
-    if (getCookie("page") == "" || getCookie("page") == "reboot_page.html?v=$COMMIT_HASH") {
-		document.cookie = "page=overview.html?v=$COMMIT_HASH" + "; path=/";
+    function init() {
+        LoadHostname();
+        LoadFwVersion();
+        LoadWebUiVersion();
+        Recognition_visibility();
+        HA_send_discovery_visibility();
+
+        if (getCookie("page") == "" || getCookie("page") == "reboot_page.html?v=$COMMIT_HASH") {
+            document.cookie = "page=overview.html?v=$COMMIT_HASH" + "; path=/";
+        }
+        console.log("Loading page: " + getCookie("page"));
+        document.getElementById('maincontent').src = getCookie("page");
     }
-    console.log("Loading page: " + getCookie("page"));
-    document.getElementById('maincontent').src = getCookie("page");
 
-    
     function flow_start() {
-    var url = getDomainname() + '/flow_start'; 
-		var xhttp = new XMLHttpRequest();
-		xhttp.onreadystatechange = function() {
-			if (this.readyState == 4 && this.status == 200) {
+        var url = getDomainname() + '/flow_start'; 
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
                 firework.launch(xhttp.responseText, 'success', 5000);
-			    /*if (xhttp.responseText.substring(0,3) == "001") {
-					firework.launch('Flow start triggered', 'success', 5000);
+                /*if (xhttp.responseText.substring(0,3) == "001") {
+                    firework.launch('Flow start triggered', 'success', 5000);
                     window.location.reload();
-				}
-				else if (xhttp.responseText.substring(0,3) == "002") {
-					firework.launch('Flow start scheduled. Start after round is completed', 'success', 5000);
-				}
-				else if (xhttp.responseText.substring(0,3) == "099") {
-					firework.launch('Flow start triggered, but start not possible (no flow task available)', 'danger', 5000);
+                }
+                else if (xhttp.responseText.substring(0,3) == "002") {
+                    firework.launch('Flow start scheduled. Start after round is completed', 'success', 5000);
+                }
+                else if (xhttp.responseText.substring(0,3) == "099") {
+                    firework.launch('Flow start triggered, but start not possible (no flow task available)', 'danger', 5000);
                 }*/
-			}
-		}
-		xhttp.open("GET", url, true);
-		xhttp.send();
+            }
+        }
+        xhttp.open("GET", url, true);
+        xhttp.send();
     }
-    
 
-    function HA_send_discovery_visibility()	{
-		loadConfig(domainname); 
-		ParseConfig();
-		category = getConfigCategory();
+    function Recognition_visibility() {
+        if (param["Debug"]["LogLevel"].value1 == "4") {
+            document.getElementById("Recognition").style.display = "";
+        }
+        else {
+            document.getElementById("Recognition").style.display = "none";
+        }
+    }
+	
+    function HA_send_discovery_visibility() {
+        loadConfig(domainname); 
+        ParseConfig();
+        category = getConfigCategory();
         param = getConfigParameters();
 		
-		if (category["MQTT"]["enabled"] && param["MQTT"]["HomeassistantDiscovery"].value1 == "true") {
+        if (category["MQTT"]["enabled"] && param["MQTT"]["HomeassistantDiscovery"].value1 == "true") {
             document.getElementById("ManualControl").style.display="";
             document.getElementById("HASendDiscovery").style.display="";
         }
-	}
+        else {
+            document.getElementById("ManualControl").style.display="none";
+            document.getElementById("HASendDiscovery").style.display="none";
+        }
+    }
 
     function HA_send_discovery() {
-    console.log("Homeassistant Discovery topic sending scheduled");
-    var url = getDomainname() + '/mqtt_publish_discovery'; 
-		var xhttp = new XMLHttpRequest();
-		xhttp.onreadystatechange = function() {
-			if (this.readyState == 4 && this.status == 200) {
-				firework.launch('Sending Homeassistant discovery topics scheduled. It will get sent in the step "Publish to MQTT" of the next digitization round', 'success', 5000);
-			}
-		}
-		xhttp.open("GET", url, true);
-		xhttp.send();
+        console.log("Homeassistant Discovery topic sending scheduled");
+        var url = getDomainname() + '/mqtt_publish_discovery'; 
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                firework.launch('Sending Homeassistant discovery topics scheduled. It will get sent in the step "Publish to MQTT" of the next digitization round', 'success', 5000);
+            }
+        }
+        xhttp.open("GET", url, true);
+        xhttp.send();
     }
 
     function start_livestream(streamFlashlight) {
         if (streamPopup) {
             streamPopup.close();
-		}
+        }
 
         if (streamFlashlight) {
             streamPopup = window.open(getDomainname() + '/stream?flashlight=true','LivestreamWithlight',streamWindowFeatures);
-		}
+        }
         else {
             streamPopup = window.open(getDomainname() + '/stream','Livestream',streamWindowFeatures);
-		}
+        }
 
         streamPopup.focus();
     }
-</script>
 
+    init();
+</script>
 </body>
 </html>
